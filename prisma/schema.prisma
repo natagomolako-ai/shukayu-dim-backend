@@ -1,0 +1,29 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+// Таблиця користувачів
+model User {
+  id        Int      @id @default(autoincrement())
+  name      String
+  email     String   @unique
+  password  String   // Тут зберігатиметься зашифрований пароль
+  createdAt DateTime @default(now())
+}
+
+// Таблиця тваринок (на майбутнє)
+model Animal {
+  id           Int      @id @default(autoincrement())
+  name         String
+  species      String
+  gender       String
+  ageCategory  String
+  isSterilized Boolean  @default(false)
+  region       String
+  createdAt    DateTime @default(now())
+}
