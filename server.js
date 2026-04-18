@@ -7,13 +7,18 @@ const { PrismaClient } = require('@prisma/client');
 const app = express();
 const prisma = new PrismaClient();
 
-// Налаштування доступу (CORS) - дозволяємо запити з будь-яких джерел
-app.use(cors());
+// Налаштовуємо CORS максимально відкрито
+app.use(cors({
+    origin: '*', // Дозволяємо запити з будь-якого сайту
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    allowedHeaders: ['Content-Type', 'Authorization']
+}));
+
 app.use(express.json());
 
-// Головна сторінка для перевірки
+// Головна сторінка
 app.get('/', (req, res) => {
-    res.send('🚀 Сервер "Шукаю дім" успішно працює в хмарі!');
+    res.send('🚀 Сервер "Шукаю дім" працює і приймає всіх!');
 });
 
 // РЕЄСТРАЦІЯ
@@ -21,13 +26,13 @@ app.post('/register', async (req, res) => {
     try {
         const { name, email, password } = req.body;
         const hashedPassword = await bcrypt.hash(password, 10);
-        const newUser = await prisma.user.create({
+        await prisma.user.create({
             data: { name, email, password: hashedPassword },
         });
         res.status(201).json({ message: 'Користувача створено!' });
     } catch (error) {
         console.error('Помилка реєстрації:', error);
-        res.status(500).json({ error: 'Помилка реєстрації. Можливо, такий email вже існує.' });
+        res.status(500).json({ error: 'Помилка реєстрації' });
     }
 });
 
@@ -48,8 +53,7 @@ app.post('/login', async (req, res) => {
     }
 });
 
-// ДИНАМІЧНИЙ ПОРТ - Найважливіше для Render!
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, '0.0.0.0', () => {
-    console.log(`🚀 Сервер запущено на порту ${PORT}`);
+    console.log(`🚀 Сервер на порту ${PORT}`);
 });
