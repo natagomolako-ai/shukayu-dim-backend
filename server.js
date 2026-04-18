@@ -1,59 +1,56 @@
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
-const bcrypt = require('bcrypt');
 const { PrismaClient } = require('@prisma/client');
+const bcrypt = require('bcrypt');
 
 const app = express();
 const prisma = new PrismaClient();
 
-// Налаштовуємо CORS максимально відкрито
-app.use(cors({
-    origin: '*', // Дозволяємо запити з будь-якого сайту
-    methods: ['GET', 'POST', 'PUT', 'DELETE'],
-    allowedHeaders: ['Content-Type', 'Authorization']
-}));
-
+// Налаштовуємо CORS (дозволяємо все, щоб точно спрацювало)
+app.use(cors());
 app.use(express.json());
 
-// Головна сторінка
+// Цей шлях ми перевірятимемо в браузері
 app.get('/', (req, res) => {
-    res.send('🚀 Сервер "Шукаю дім" працює і приймає всіх!');
+    console.log("Хтось зайшов на головну сторінку!");
+    res.send('🚀 Сервер "Шукаю дім" ПРАЦЮЄ! Масюсік передає привіт 🐾');
 });
 
-// РЕЄСТРАЦІЯ
+// Реєстрація
 app.post('/register', async (req, res) => {
+    console.log("Спроба реєстрації:", req.body.email);
     try {
         const { name, email, password } = req.body;
         const hashedPassword = await bcrypt.hash(password, 10);
-        await prisma.user.create({
-            data: { name, email, password: hashedPassword },
+        const newUser = await prisma.user.create({
+            data: { name, email, password: hashedPassword }
         });
         res.status(201).json({ message: 'Користувача створено!' });
     } catch (error) {
-        console.error('Помилка реєстрації:', error);
-        res.status(500).json({ error: 'Помилка реєстрації' });
+        console.error("Помилка БД:", error.message);
+        res.status(500).json({ error: 'Такий E-mail вже є або помилка бази' });
     }
 });
 
-// ВХІД
+// Вхід
 app.post('/login', async (req, res) => {
+    console.log("Спроба входу:", req.body.email);
     try {
         const { email, password } = req.body;
         const user = await prisma.user.findUnique({ where: { email } });
         if (!user) return res.status(401).json({ error: 'Користувача не знайдено' });
 
-        const isPasswordValid = await bcrypt.compare(password, user.password);
-        if (!isPasswordValid) return res.status(401).json({ error: 'Неправильний пароль' });
+        const valid = await bcrypt.compare(password, user.password);
+        if (!valid) return res.status(401).json({ error: 'Пароль невірний' });
 
-        res.json({ message: 'Вхід успішний!', user: { name: user.name } });
+        res.json({ message: 'Успішно', user: { name: user.name } });
     } catch (error) {
-        console.error('Помилка входу:', error);
         res.status(500).json({ error: 'Помилка сервера' });
     }
 });
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 10000;
 app.listen(PORT, '0.0.0.0', () => {
-    console.log(`🚀 Сервер на порту ${PORT}`);
+    console.log(`✅ Сервер стартував на порту ${PORT}`);
 });
