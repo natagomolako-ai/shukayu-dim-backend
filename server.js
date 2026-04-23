@@ -92,3 +92,12 @@ app.listen(PORT, '0.0.0.0', () => {
     console.log(`✅ Сервер стартував на порту ${PORT}`);
     console.log(`🔗 Посилання для перевірки: https://shukayu-dim-backendl.onrender.com`);
 });
+
+const axios = require('axios');
+
+// Пінгуємо самого себе кожні 10 хвилин (600 000 мс)
+setInterval(() => {
+  axios.get('https://shukayu-dim-backendi.onrender.com')
+    .then(() => console.log('Keep-alive ping sent!'))
+    .catch((err) => console.error('Ping failed:', err.message));
+}, 600000);
