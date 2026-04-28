@@ -1,5 +1,3 @@
-// Це твій файл конфігурації бази даних
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -9,16 +7,17 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// Модель користувача (вона у тебе вже є, просто перевір)
+// Модель користувача
 model User {
-  id       Int     @id @default(autoincrement())
-  name     String
-  email    String  @unique
-  password String
-  pets     Pet[]   // Зв'язок: один користувач може створити багато оголошень
+  id        Int      @id @default(autoincrement())
+  name      String
+  email     String   @unique
+  password  String
+  createdAt DateTime @default(now()) // ДОДАНО: тепер база не буде "сваритися"
+  pets      Pet[]    // Зв'язок: один користувач може мати багато оголошень
 }
 
-// НОВА МОДЕЛЬ: Оголошення про тваринку
+// Модель оголошення про тваринку
 model Pet {
   id          Int      @id @default(autoincrement())
   name        String   // Кличка
@@ -26,10 +25,10 @@ model Pet {
   age         String   // Цуценя, Дорослий тощо
   gender      String   // Хлопчик чи Дівчинка
   location    String   // Місто/Район
-  description String   @db.Text // Історія тваринки
-  imageUrl    String?  // Посилання на фото
-  status      String   @default("PENDING") // PENDING - чекає на твою перевірку, APPROVED - на сайті
-  userId      Int      // ID того, хто створив
+  description String   @db.Text // Історія тваринки (Text для довгих описів)
+  imageUrl    String?  // Посилання на фото (може бути порожнім)
+  status      String   @default("PENDING") // Чекає на перевірку менеджером
+  userId      Int      // Хто створив
   user        User     @relation(fields: [userId], references: [id])
   createdAt   DateTime @default(now())
 }
