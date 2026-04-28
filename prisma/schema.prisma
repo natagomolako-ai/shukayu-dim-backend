@@ -1,3 +1,4 @@
+// 1. ОЦЕ ТА САМА ШАПКА, ЯКА ЗНИКЛА (Підключення до БД)
 generator client {
   provider = "prisma-client-js"
 }
@@ -7,28 +8,24 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// Модель користувача
+// 2. ТАБЛИЦЯ КОРИСТУВАЧІВ
 model User {
   id        Int      @id @default(autoincrement())
   name      String
   email     String   @unique
   password  String
-  createdAt DateTime @default(now()) // ДОДАНО: тепер база не буде "сваритися"
-  pets      Pet[]    // Зв'язок: один користувач може мати багато оголошень
+  createdAt DateTime @default(now())
 }
 
-// Модель оголошення про тваринку
+// 3. ТАБЛИЦЯ ТВАРИНОК (з твоїми новими полями для модерації)
 model Pet {
   id          Int      @id @default(autoincrement())
-  name        String   // Кличка
-  type        String   // Песик чи Котик
-  age         String   // Цуценя, Дорослий тощо
-  gender      String   // Хлопчик чи Дівчинка
-  location    String   // Місто/Район
-  description String   @db.Text // Історія тваринки (Text для довгих описів)
-  imageUrl    String?  // Посилання на фото (може бути порожнім)
-  status      String   @default("PENDING") // Чекає на перевірку менеджером
-  userId      Int      // Хто створив
-  user        User     @relation(fields: [userId], references: [id])
-  createdAt   DateTime @default(now())
+  name        String
+  type        String
+  location    String?
+  imageUrl    String?
+  
+  // Поля для адмінки:
+  status      String   @default("pending") 
+  authorId    Int      @default(0)         
 }
