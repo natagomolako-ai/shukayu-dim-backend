@@ -64,7 +64,7 @@ app.listen(PORT, '0.0.0.0', () => {
 // 6. САМОПІНГ (Щоб не спав Render)
 // УВАГА: Перевір, щоб тут було ТВОЄ ПРАВИЛЬНЕ посилання з Render
 setInterval(() => {
-  axios.get('https://shukayu-dim-backend.onrender.com') 
+  axios.get('https://shukayu-dim-backendi.onrender.com') 
     .then(() => console.log('Keep-alive ping sent!'))
     .catch((err) => console.error('Ping failed:', err.message));
 }, 600000); // 10 хвилин
@@ -73,7 +73,7 @@ setInterval(async () => {
   try {
     // 1. Стукаємо самі до себе (Render не дасть заснути серверу)
     // УВАГА: Перевір, щоб тут було ТВОЄ ПРАВИЛЬНЕ посилання з Render (з буквою l чи i)
-    await axios.get('https://shukayu-dim-backendl.onrender.com');
+    await axios.get('https://shukayu-dim-backendi.onrender.com');
     
     // 2. Стукаємо в базу (Aiven бачитиме активність і не вимкнеться)
     await prisma.$queryRaw`SELECT 1`; 
