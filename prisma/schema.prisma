@@ -29,7 +29,7 @@ model Pet {
   region        String   // Область
   city          String   // Місто / Село
   description   String   @db.Text // Опис (зробили Text, щоб влізла довга історія)
-  photo         String?  // Посилання на фото
+  photos        String?  @db.Text // Тепер це множина (photos), і тут буде список
   
   // Системні поля для твоєї адмінки
   status        String   @default("pending") // pending - на перевірці, published - на сайті
