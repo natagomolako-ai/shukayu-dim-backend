@@ -8,9 +8,10 @@ const axios = require('axios');
 const app = express();
 const prisma = new PrismaClient();
 
-// 1. НАЛАШТУВАННЯ ДОСТУПУ (CORS)
-app.use(cors());
-app.use(express.json());
+// Дозволяємо приймати великі запити (до 10 мегабайт), щоб влізли фото
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ limit: '10mb', extended: true }));
+
 
 // 2. ГОЛОВНА СТОРІНКА
 app.get('/', (req, res) => {
