@@ -99,6 +99,33 @@ app.post('/api/pets', async (req, res) => {
     }
 });
 
+// В) ОПУБЛІКУВАТИ анкету (змінити статус на published)
+app.put('/api/pets/:id/publish', async (req, res) => {
+    try {
+        const updatedPet = await prisma.pet.update({
+            where: { id: req.params.id },
+            data: { status: 'published' }
+        });
+        res.json({ message: 'Опубліковано успішно!' });
+    } catch (error) {
+        console.error("Помилка публікації:", error);
+        res.status(500).json({ error: 'Не вдалося змінити статус' });
+    }
+});
+
+// Г) ВИДАЛИТИ анкету назавжди
+app.delete('/api/pets/:id', async (req, res) => {
+    try {
+        await prisma.pet.delete({
+            where: { id: req.params.id }
+        });
+        res.json({ message: 'Анкету видалено!' });
+    } catch (error) {
+        console.error("Помилка видалення:", error);
+        res.status(500).json({ error: 'Не вдалося видалити' });
+    }
+});
+
 
 // 5. ЗАПУСК СЕРВЕРА
 const PORT = process.env.PORT || 10000;
