@@ -55,50 +55,65 @@ app.post('/login', async (req, res) => {
     }
 });
 
-// 5. ЗАПУСК СЕРВЕРА
 // ==========================================
 // 4.5. РОБОТА З ТВАРИНКАМИ (ОГОЛОШЕННЯ)
 // ==========================================
+
+// А) ВІДДАЄМО список тваринок в Адмінку
 app.get('/api/pets', async (req, res) => {
     try {
-        // Поки ми не створили таблицю тварин у базі даних, 
-        // сервер буде віддавати цих тестових котиків і песиків:
-        const testPets = [
-            { id: "1", name: "Мурзик", type: "Кіт", age: "2 роки", city: "Ніжин", description: "Дуже лагідний рудий котик, любить спати на ручках." },
-            { id: "2", name: "Рекс", type: "Пес", age: "5 місяців", city: "Київ", description: "Активний і веселий цуценя, знає команду 'сидіти'." }
-        ];
-        
-        // Відправляємо список в адмінку!
-        res.json(testPets);
+        // Просимо базу Prisma віддати всіх тваринок, нові будуть зверху
+        const pets = await prisma.pet.findMany({
+            orderBy: { createdAt: 'desc' }
+        });
+        res.json(pets);
     } catch (error) {
-        console.error("Помилка:", error);
+        console.error("Помилка при отриманні тварин:", error);
         res.status(500).json({ error: 'Помилка сервера' });
     }
 });
+
+// Б) ЗБЕРІГАЄМО нову тваринку з форми "Додати"
+app.post('/api/pets', async (req, res) => {
+    try {
+        // Prisma бере дані з форми і створює новий запис у базі
+        const newPet = await prisma.pet.create({
+            data: {
+                name: req.body.name || null,
+                type: req.body.type,
+                gender: req.body.gender,
+                age: req.body.age,
+                sterilization: req.body.sterilization,
+                vaccination: req.body.vaccination,
+                region: req.body.region,
+                city: req.body.city,
+                description: req.body.description,
+                photo: req.body.photo || null
+            }
+        });
+        // Відповідаємо фронтенду, що все супер (код 201)
+        res.status(201).json({ message: 'Анкету успішно відправлено на перевірку!', pet: newPet });
+    } catch (error) {
+        console.error("Помилка при збереженні тваринки:", error);
+        res.status(500).json({ error: 'Не вдалося зберегти анкету в базу' });
+    }
+});
+
+
+// 5. ЗАПУСК СЕРВЕРА
 const PORT = process.env.PORT || 10000;
 app.listen(PORT, '0.0.0.0', () => {
     console.log(`✅ Сервер стартував на порту ${PORT}`);
 });
 
-// 6. САМОПІНГ (Щоб не спав Render)
-// УВАГА: Перевір, щоб тут було ТВОЄ ПРАВИЛЬНЕ посилання з Render
-setInterval(() => {
-  axios.get('https://shukayu-dim-backendi.onrender.com') 
-    .then(() => console.log('Keep-alive ping sent!'))
-    .catch((err) => console.error('Ping failed:', err.message));
-}, 600000); // 10 хвилин
-// Цей блок ставимо в самому кінці файлу
+// 6. САМОПІНГ (Щоб не спав Render та база Aiven)
 setInterval(async () => {
   try {
-    // 1. Стукаємо самі до себе (Render не дасть заснути серверу)
-    // УВАГА: Перевір, щоб тут було ТВОЄ ПРАВИЛЬНЕ посилання з Render (з буквою l чи i)
     await axios.get('https://shukayu-dim-backendi.onrender.com');
-    
-    // 2. Стукаємо в базу (Aiven бачитиме активність і не вимкнеться)
     await prisma.$queryRaw`SELECT 1`; 
-    
     console.log('⏰ Будильник спрацював: Бекенд та База активні!');
   } catch (err) {
     console.error('❌ Помилка будильника:', err.message);
   }
 }, 600000); // 10 хвилин
+
