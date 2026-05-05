@@ -1,4 +1,4 @@
-// 1. ОЦЕ ТА САМА ШАПКА, ЯКА ЗНИКЛА (Підключення до БД)
+// 1. НАЛАШТУВАННЯ ПІДКЛЮЧЕННЯ
 generator client {
   provider = "prisma-client-js"
 }
@@ -8,7 +8,7 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// 2. ТАБЛИЦЯ КОРИСТУВАЧІВ
+// 2. ТАБЛИЦЯ КОРИСТУВАЧІВ (Для входу в систему)
 model User {
   id        Int      @id @default(autoincrement())
   name      String
@@ -17,15 +17,21 @@ model User {
   createdAt DateTime @default(now())
 }
 
-// 3. ТАБЛИЦЯ ТВАРИНОК (з твоїми новими полями для модерації)
+// 3. ТАБЛИЦЯ ТВАРИНОК (Повністю під твою анкету "Шукаю дім")
 model Pet {
-  id          Int      @id @default(autoincrement())
-  name        String
-  type        String
-  location    String?
-  imageUrl    String?
+  id            String   @id @default(uuid())
+  name          String?  // Ім'я
+  type          String   // Хто це (Песик / Котик / Інше)
+  gender        String   // Стать (Хлопчик / Дівчинка)
+  age           String   // Вік
+  sterilization String   // Стерилізація
+  vaccination   String   // Вакцинація
+  region        String   // Область
+  city          String   // Місто / Село
+  description   String   @db.Text // Опис (зробили Text, щоб влізла довга історія)
+  photo         String?  // Посилання на фото
   
-  // Поля для адмінки:
-  status      String   @default("pending") 
-  authorId    Int      @default(0)         
+  // Системні поля для твоєї адмінки
+  status        String   @default("pending") // pending - на перевірці, published - на сайті
+  createdAt     DateTime @default(now())     // Дата подачі заявки
 }
