@@ -130,13 +130,21 @@ app.delete('/api/pets/:id', async (req, res) => {
         res.status(500).json({ error: 'Не вдалося видалити' });
     }
 });
-// Д) РЕДАГУВАТИ анкету
+// Д) РЕДАГУВАТИ анкету (повна версія)
 app.put('/api/pets/:id', async (req, res) => {
     try {
-        const { name, age, city, description } = req.body;
+        // Отримуємо абсолютно всі поля з запиту
+        const { 
+            name, type, gender, age, sterilization, 
+            vaccination, region, city, description 
+        } = req.body;
+
         await prisma.pet.update({
             where: { id: req.params.id },
-            data: { name, age, city, description }
+            data: { 
+                name, type, gender, age, sterilization, 
+                vaccination, region, city, description 
+            }
         });
         res.json({ message: 'Оновлено успішно!' });
     } catch (error) {
@@ -144,7 +152,6 @@ app.put('/api/pets/:id', async (req, res) => {
         res.status(500).json({ error: 'Не вдалося оновити' });
     }
 });
-
 
 // 5. ЗАПУСК СЕРВЕРА
 const PORT = process.env.PORT || 10000;
