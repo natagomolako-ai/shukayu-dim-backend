@@ -8,6 +8,9 @@ const axios = require('axios');
 const app = express();
 const prisma = new PrismaClient();
 
+// 1. ВАЖЛИВО! Додаємо CORS, щоб сайт міг спілкуватися з сервером
+app.use(cors());
+
 // Дозволяємо приймати великі запити (до 10 мегабайт), щоб влізли фото
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ limit: '10mb', extended: true }));
@@ -89,10 +92,11 @@ app.post('/api/pets', async (req, res) => {
                 region: req.body.region,
                 city: req.body.city,
                 description: req.body.description,
-                photo: req.body.photo || null
+                // ТЕПЕР ТУТ ПРАВИЛЬНЕ ПОЛЕ PHOTOS ТА СТАТУС
+                photos: req.body.photos ? JSON.stringify(req.body.photos) : '[]',
+                status: req.body.status || 'pending'
             }
         });
-        // Відповідаємо фронтенду, що все супер (код 201)
         res.status(201).json({ message: 'Анкету успішно відправлено на перевірку!', pet: newPet });
     } catch (error) {
         console.error("Помилка при збереженні тваринки:", error);
@@ -144,4 +148,3 @@ setInterval(async () => {
     console.error('❌ Помилка будильника:', err.message);
   }
 }, 600000); // 10 хвилин
-
