@@ -130,6 +130,20 @@ app.delete('/api/pets/:id', async (req, res) => {
         res.status(500).json({ error: 'Не вдалося видалити' });
     }
 });
+// Д) РЕДАГУВАТИ анкету
+app.put('/api/pets/:id', async (req, res) => {
+    try {
+        const { name, age, city, description } = req.body;
+        await prisma.pet.update({
+            where: { id: req.params.id },
+            data: { name, age, city, description }
+        });
+        res.json({ message: 'Оновлено успішно!' });
+    } catch (error) {
+        console.error("Помилка редагування:", error);
+        res.status(500).json({ error: 'Не вдалося оновити' });
+    }
+});
 
 
 // 5. ЗАПУСК СЕРВЕРА
