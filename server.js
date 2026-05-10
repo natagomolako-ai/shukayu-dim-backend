@@ -84,6 +84,7 @@ app.post('/api/pets', async (req, res) => {
         const newPet = await prisma.pet.create({
             data: {
                 name: req.body.name || null,
+                category: req.body.category || 'adoption', // НОВЕ ПОЛЕ
                 type: req.body.type,
                 gender: req.body.gender,
                 age: req.body.age,
@@ -92,7 +93,6 @@ app.post('/api/pets', async (req, res) => {
                 region: req.body.region,
                 city: req.body.city,
                 description: req.body.description,
-                // ТЕПЕР ТУТ ПРАВИЛЬНЕ ПОЛЕ PHOTOS ТА СТАТУС
                 photos: req.body.photos ? JSON.stringify(req.body.photos) : '[]',
                 status: req.body.status || 'pending'
             }
@@ -130,19 +130,20 @@ app.delete('/api/pets/:id', async (req, res) => {
         res.status(500).json({ error: 'Не вдалося видалити' });
     }
 });
+
 // Д) РЕДАГУВАТИ анкету (повна версія)
 app.put('/api/pets/:id', async (req, res) => {
     try {
         // Отримуємо абсолютно всі поля з запиту
         const { 
-            name, type, gender, age, sterilization, 
+            name, category, type, gender, age, sterilization, 
             vaccination, region, city, description 
         } = req.body;
 
         await prisma.pet.update({
             where: { id: req.params.id },
             data: { 
-                name, type, gender, age, sterilization, 
+                name, category, type, gender, age, sterilization, 
                 vaccination, region, city, description 
             }
         });
