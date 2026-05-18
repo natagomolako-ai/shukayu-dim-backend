@@ -63,13 +63,24 @@ app.post('/login', async (req, res) => {
 // 4.5. РОБОТА З ТВАРИНКАМИ (ОГОЛОШЕННЯ)
 // ==========================================
 
-// А) ВІДДАЄМО список тваринок в Адмінку
+// А) ВІДДАЄМО список тваринок (в Адмінку або на сайт з фільтром)
 app.get('/api/pets', async (req, res) => {
     try {
-        // Просимо базу Prisma віддати всіх тваринок, нові будуть зверху
-        const pets = await prisma.pet.findMany({
+        // Перевіряємо, чи передав сайт якусь конкретну категорію
+        const { category } = req.query; 
+
+        // Створюємо базовий запит (за замовчуванням беремо всіх)
+        let queryOptions = {
             orderBy: { createdAt: 'desc' }
-        });
+        };
+
+        // Якщо в запиті вказана категорія, додаємо її у фільтр
+        if (category) {
+            queryOptions.where = { category: category };
+        }
+
+        // Просимо базу віддати тваринок за нашими умовами
+        const pets = await prisma.pet.findMany(queryOptions);
         res.json(pets);
     } catch (error) {
         console.error("Помилка при отриманні тварин:", error);
