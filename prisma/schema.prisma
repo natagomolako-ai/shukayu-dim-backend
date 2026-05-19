@@ -19,7 +19,7 @@ model User {
 
 // 3. ТАБЛИЦЯ ТВАРИНОК (Повністю під твою анкету "Шукаю дім")
 model Pet {
-  id            String   @id @default(uuid())
+  id            String        @id @default(uuid())
   name          String?
   type          String
   gender        String
@@ -29,8 +29,22 @@ model Pet {
   region        String
   city          String
   description   String
-  photos        String   @default("[]")
-  status        String   @default("pending")
-  category      String   @default("adoption") // НОВЕ ПОЛЕ: "adoption" або "lost"
-  createdAt     DateTime @default(now())
+  photos        String        @default("[]")
+  status        String        @default("pending")
+  category      String        @default("adoption") // "adoption" або "lost"
+  createdAt     DateTime      @default(now())
+  applications  Application[] // 🔥 ОНОВЛЕНО: зв'язок із заявками від людей
+}
+
+// 🔥 4. ТАБЛИЦЯ ЗАЯВОК ВІД ПОТЕНЦІЙНИХ ВЛАСНИКІВ 🔥
+model Application {
+  id        Int      @id @default(autoincrement())
+  petId     String   // ID тваринки, яку хочуть забрати
+  pet       Pet      @relation(fields: [petId], references: [id], onDelete: Cascade)
+  name      String   // Ім'я заявника
+  surname   String   // Прізвище заявника
+  city      String   // Місто проживання людини
+  phone     String   // Номер телефону для зв'язку
+  comment   String?  // Зручний час або нік в соцмережах (String?, бо поле може бути порожнім)
+  createdAt DateTime @default(now())
 }

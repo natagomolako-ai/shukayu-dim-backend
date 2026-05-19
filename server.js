@@ -165,6 +165,50 @@ app.put('/api/pets/:id', async (req, res) => {
     }
 });
 
+// ==========================================
+// 🔥 4.7. МАРШРУТИ ДЛЯ ЗАЯВОК (APPLICATIONS) 🔥
+// ==========================================
+
+// 1. ПРИЙМАЄМО нову заявку від користувача (з форми application.html)
+app.post('/api/applications', async (req, res) => {
+    try {
+        const { petId, name, surname, city, phone, comment } = req.body;
+
+        // Перевіряємо, чи взагалі існує така тваринка в базі
+        const petExists = await prisma.pet.findUnique({ where: { id: petId } });
+        if (!petExists) {
+            return res.status(404).json({ error: 'Тваринку не знайдено в базі даних!' });
+        }
+
+        // Створюємо запис у таблиці Application
+        const newApplication = await prisma.application.create({
+            data: { petId, name, surname, city, phone, comment }
+        });
+
+        res.status(201).json({ message: 'Заявку успішно відправлено!', application: newApplication });
+    } catch (error) {
+        console.error("Помилка при збереженні заявки:", error);
+        res.status(500).json({ error: 'Не вдалося зберегти заявку на сервері' });
+    }
+});
+
+// 2. ВІДДАЄМО всі заявки разом із даними про тваринку (для адмінки)
+app.get('/api/applications', async (req, res) => {
+    try {
+        const applications = await prisma.application.findMany({
+            include: {
+                pet: true // Автоматично додає об'єкт тваринки до кожної заявки!
+            },
+            orderBy: { createdAt: 'desc' } // Спочатку найсвіжіші
+        });
+        res.json(applications);
+    } catch (error) {
+        console.error("Помилка при отриманні заявок:", error);
+        res.status(500).json({ error: 'Не вдалося завантажити заявки' });
+    }
+});
+
+
 // 5. ЗАПУСК СЕРВЕРА
 const PORT = process.env.PORT || 10000;
 app.listen(PORT, '0.0.0.0', () => {
